@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from gpt4all import GPT4All
 
 app = Flask(__name__)
 
