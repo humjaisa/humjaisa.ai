@@ -1,23 +1,17 @@
 from flask import Flask, request, jsonify
+import os
 
 app = Flask(__name__)
 
-# GPT4All model load (replace with actual path or logic)
-model = GPT4All("mistral-7b-instruct-v0.1.Q4_0.gguf")
-
 @app.route('/')
 def home():
-    return "HumJaisa AI is live!"
+    return "HumJaisa AI is running!"
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    user_input = request.json.get("message")
-    if not user_input:
-        return jsonify({"error": "No input"}), 400
-
-    response = model.generate(user_input, max_tokens=200)
-    return jsonify({"response": response})
+@app.route('/ask', methods=['POST'])
+def ask():
+    user_input = request.json.get('message', '')
+    return jsonify({"response": f"HumJaisa AI ka jawab: {user_input[::-1]}"})  # bas demo
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
