@@ -1,10 +1,11 @@
+<!-- File: templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HumJaisa AI</title>
- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -14,7 +15,7 @@
     </header>
 
     <main id="chat-box" class="chat-box">
-      <div class="message bot">Hello! Type /hello to see a reply.</div>
+      <div class="message bot">Hello! I'm HumJaisa AI. Ask me anything.</div>
     </main>
 
     <footer class="input-area">
@@ -28,20 +29,36 @@
     const input = document.getElementById("user-input");
     const chatBox = document.getElementById("chat-box");
 
-    sendBtn.addEventListener("click", () => {
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    function sendMessage() {
       const userMsg = input.value.trim();
       if (!userMsg) return;
 
-      chatBox.innerHTML += `<div class='message user'>${userMsg}</div>`;
+      addMessage(userMsg, 'user');
       input.value = "";
 
-      if (userMsg.toLowerCase() === "/hello") {
-        setTimeout(() => {
-          chatBox.innerHTML += `<div class='message bot'>Hello there! 👋</div>`;
-          chatBox.scrollTop = chatBox.scrollHeight;
-        }, 500);
-      }
-    });
+      fetch('/get-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg })
+      })
+      .then(res => res.json())
+      .then(data => {
+        addMessage(data.reply, 'bot');
+      });
+    }
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      msgDiv.textContent = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
   </script>
 </body>
 </html>
