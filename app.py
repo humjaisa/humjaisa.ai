@@ -1,17 +1,19 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify
 import text2emotion as t2e
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return "HumJaisa AI is running!"
 
 @app.route("/get")
 def get_bot_response():
     user_msg = request.args.get('msg')
+    if not user_msg:
+        return jsonify({"error": "Message missing"}), 400
     emotions = t2e.get_emotion(user_msg)
-    return str(emotions)
+    return jsonify(emotions)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
