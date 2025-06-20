@@ -1,13 +1,11 @@
-<!-- File: templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HumJaisa AI</title>
- <!-- Replace with this CDN that usually works without CORS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
@@ -50,6 +48,9 @@
       .then(res => res.json())
       .then(data => {
         addMessage(data.reply, 'bot');
+      })
+      .catch(() => {
+        addMessage("Kuch error ho gaya... 😓", 'bot');
       });
     }
 
