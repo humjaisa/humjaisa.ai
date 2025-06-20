@@ -2,4 +2,5 @@ Flask==2.3.2
 text2emotion
 langchain
 sqlite3
+textblob
 
