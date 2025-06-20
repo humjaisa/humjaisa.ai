@@ -1,22 +1,37 @@
-from flask import Flask, request, jsonify, render_template
-import text2emotion as t2e
+from flask import Flask, render_template, request, jsonify
+from langchain.memory import ConversationBufferMemory
+from langchain.memory.chat_message_histories import SQLiteChatMessageHistory
 
 app = Flask(__name__)
 
+# LangChain memory using SQLite (no OpenAI)
+chat_history = SQLiteChatMessageHistory(database_path="chat_memory.db", session_id="user1")
+memory = ConversationBufferMemory(chat_memory=chat_history, return_messages=True)
+
 @app.route("/")
-def home():
-    return render_template("index.html")  # 👈 yeh dikhaega UI
+def index():
+    return render_template("index.html")
 
 @app.route("/get")
 def get_bot_response():
-    try:
-        user_msg = request.args.get('msg')
-        if not user_msg:
-            return jsonify({"error": "Message missing"}), 400
-        emotions = t2e.get_emotion(user_msg)
-        return jsonify(emotions)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    user_input = request.args.get('msg')
+
+    if not user_input:
+        return jsonify({"response": "Please provide a message."})
+
+    # Basic local logic for reply
+    if "/hello" in user_input.lower():
+        reply = "Hello! How can I help you today?"
+    elif "/bye" in user_input.lower():
+        reply = "Goodbye! Have a great day."
+    else:
+        reply = "I'm still learning! Try saying /hello or /bye."
+
+    # Store in memory
+    memory.chat_memory.add_user_message(user_input)
+    memory.chat_memory.add_ai_message(reply)
+
+    return jsonify({"response": reply})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, port=5000)
