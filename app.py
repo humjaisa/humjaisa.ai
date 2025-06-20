@@ -1,15 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from textblob import TextBlob
 from langchain.memory import ConversationBufferMemory
 from langchain.memory.chat_message_histories import SQLiteChatMessageHistory
 
 app = Flask(__name__)
 
-# Chat memory using SQLite
+# Chat memory setup
 chat_history = SQLiteChatMessageHistory(database_path="chat_memory.db", session_id="default")
 memory = ConversationBufferMemory(chat_memory=chat_history, return_messages=True)
 
-# Response logic using TextBlob for sentiment analysis
+# Response logic
 def get_bot_reply(msg):
     blob = TextBlob(msg)
     polarity = blob.sentiment.polarity
@@ -25,13 +25,16 @@ def get_bot_reply(msg):
 def index():
     return render_template("index.html")
 
-@app.route("/get")
+@app.route("/get-response", methods=["POST"])
 def get_response():
-    user_msg = request.args.get("msg")
+    user_msg = request.json.get("message")
+    if not user_msg:
+        return jsonify({"reply": "Kuch likho toh sahi! 😅"})
+    
     memory.add_user_message(user_msg)
     bot_reply = get_bot_reply(user_msg)
     memory.add_ai_message(bot_reply)
-    return bot_reply
+    return jsonify({"reply": bot_reply})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000, host="0.0.0.0")
