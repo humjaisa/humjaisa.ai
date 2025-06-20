@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import text2emotion as t2e
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "HumJaisa AI is running!"
+    return render_template("index.html")  # 👈 yeh dikhaega UI
 
 @app.route("/get")
 def get_bot_response():
